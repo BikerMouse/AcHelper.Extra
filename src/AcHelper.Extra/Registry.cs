@@ -4,7 +4,7 @@ using System;
 namespace AcHelper.Extra
 {
     /// <summary>
-    /// 
+    /// Wrapper to easily access Registry.
     /// </summary>
     public static class Registry
     {
