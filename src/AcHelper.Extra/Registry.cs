@@ -142,11 +142,13 @@ namespace AcHelper.Extra
             return key;
         }
         /// <summary>
-        /// Deletes the specified subkey from the given RegistryHive.
+        /// Deletes the specified subkey, and specifies whether an exception is raised if the subkey is not found.
         /// </summary>
         /// <param name="hive">RegistryHive containing the subkey to delete.</param>
-        /// <param name="subkeyToDelete">Subkey to delete.</param>
-        /// <param name="throwOnMissingSubKey"></param>
+        /// <param name="subkeyToDelete">The name of the subkey to delete. This string is not case-sensitive.</param>
+        /// <param name="throwOnMissingSubKey">Indicates whether an exception should be raised if the specified subkey cannot be found. 
+        /// If this argument is true and the specified subkey does not exist, an exception is raised. 
+        /// If this argument is false and the specified subkey does not exist, no action is taken.</param>
         public static void DeleteSubKey(RegistryHive hive, string subkeyToDelete, bool throwOnMissingSubKey)
         {
             RegistryKey key;
