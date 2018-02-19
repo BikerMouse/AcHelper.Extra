@@ -4,6 +4,7 @@ using Microsoft.Win32;
 namespace AcHelper.Extra.Tests
 {
     using NUnit.Framework;
+    using System;
 
     /// <summary>
     /// Summary description for JustMockTest
@@ -150,6 +151,72 @@ namespace AcHelper.Extra.Tests
 
             // Act
             return Registry.CheckKeyExistance(hive, SUBKEY_SOFTWARE);
+        }
+
+        [TestCase(RegistryHive.CurrentUser, SUBKEY_SOFTWARE, ExpectedResult = true)]
+        [TestCase(RegistryHive.LocalMachine, SUBKEY_SOFTWARE, ExpectedResult = true)]
+        [TestCase(RegistryHive.CurrentUser, "ABCD", ExpectedResult = false)]
+        public bool CheckKeyExistance_With_Subkey(RegistryHive hive, string subkey)
+        {
+            // Arrange
+            RegistryKey keyhive;
+            switch (hive)
+            {
+                case RegistryHive.CurrentUser:
+                    keyhive = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, RegistryView.Default);
+                    break;
+                case RegistryHive.LocalMachine:
+                    keyhive = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Default);
+                    break;
+                default:
+                    Assert.Fail("Wrong RegistryHive entered.");
+                    return false;
+            }
+
+            // Act
+            return Registry.CheckKeyExistance(hive, subkey);
+        }
+
+        [TestMethod]
+        public void SetValueToRegistry_ChangeExistingValue()
+        {
+            // Arrange
+            string fullKeyName = string.Concat(SUBKEY_SOFTWARE, @"\", SUBKEY_TEMP_ACHELPER);
+            string expected = "World";
+
+            // Act
+            Registry.SetValueToRegistry(RegistryHive.CurrentUser, fullKeyName, "Hello", "World", RegistryValueKind.String);
+            string actual = Registry.GetRegistryKey(RegistryHive.CurrentUser, fullKeyName).GetValue("Hello").ToString();
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void DeleteRegistryKey()
+        {
+            // Arrange 
+            RegistryHive hive = RegistryHive.CurrentUser;
+            string subkeyToDelete = $"{SUBKEY_SOFTWARE}\\{SUBKEY_TEMP_ACHELPER}";
+
+            // Act
+            Registry.DeleteSubKey(hive, subkeyToDelete, true);
+            RegistryKey keyIsNull = Registry.GetRegistryKey(hive, subkeyToDelete);
+
+            // Assert
+            Assert.IsNull(keyIsNull);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "subkey does not exist")]
+        public void DeleteRegistryKey_ThrowsException()
+        {
+            // Arrange 
+            RegistryHive hive = RegistryHive.CurrentUser;
+            string subkeyToDelete = $"{SUBKEY_SOFTWARE}\\ABCD";
+
+            // Act
+            Registry.DeleteSubKey(hive, subkeyToDelete, true);
         }
     }
 }

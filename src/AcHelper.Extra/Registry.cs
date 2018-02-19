@@ -141,6 +141,29 @@ namespace AcHelper.Extra
 
             return key;
         }
+        /// <summary>
+        /// Deletes the specified subkey from the given RegistryHive.
+        /// </summary>
+        /// <param name="hive">RegistryHive containing the subkey to delete.</param>
+        /// <param name="subkeyToDelete">Subkey to delete.</param>
+        /// <param name="throwOnMissingSubKey"></param>
+        public static void DeleteSubKey(RegistryHive hive, string subkeyToDelete, bool throwOnMissingSubKey)
+        {
+            RegistryKey key;
+            switch (hive)
+            {
+                case RegistryHive.CurrentUser:
+                    key = Microsoft.Win32.Registry.CurrentUser;
+                    break;
+                case RegistryHive.LocalMachine:
+                    key = Microsoft.Win32.Registry.LocalMachine;
+                    break;
+                default:
+                    throw new ArgumentException($"Only CurrentUser or LocalMachine supported. {hive} is invalid.", "hive");
+            }
+
+            key.DeleteSubKey(subkeyToDelete, throwOnMissingSubKey);
+        }
 
         #region private helpers ...
         /// <summary>
@@ -173,6 +196,7 @@ namespace AcHelper.Extra
             }
 
         }
+
         #endregion
     }
 }
