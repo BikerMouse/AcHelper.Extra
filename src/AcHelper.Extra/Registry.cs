@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Text;
 
 namespace AcHelper.Extra
 {
@@ -167,6 +168,21 @@ namespace AcHelper.Extra
             key.DeleteSubKey(subkeyToDelete, throwOnMissingSubKey);
         }
 
+        public static string CreateRegistryKeyString(params string[] subkeys)
+        {
+            if (subkeys.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(subkeys));
+            }
+
+            string regkey = string.Empty;
+            for (int i = 0; i < subkeys.Length; i++)
+            {
+                regkey += $"{subkeys[i]}\\";
+            }
+            return regkey.TrimEnd('\\');
+        }
+
         #region private helpers ...
         /// <summary>
         /// Retrieves a subkey as read-only.
@@ -198,7 +214,6 @@ namespace AcHelper.Extra
             }
 
         }
-
         #endregion
     }
 }

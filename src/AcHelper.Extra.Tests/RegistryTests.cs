@@ -107,7 +107,7 @@ namespace AcHelper.Extra.Tests
         public void GetRegistryKey_ReturnValidSoftwareKey(RegistryHive hive)
         {
             // Arrange
-            Microsoft.Win32.RegistryKey keyhive;
+            RegistryKey keyhive;
             switch (hive)
             {
                 case RegistryHive.CurrentUser:
@@ -134,21 +134,6 @@ namespace AcHelper.Extra.Tests
         [TestCase(RegistryHive.LocalMachine, ExpectedResult = true)]
         public bool CheckKeyExistance(RegistryHive hive)
         {
-            // Arrange
-            Microsoft.Win32.RegistryKey keyhive;
-            switch (hive)
-            {
-                case RegistryHive.CurrentUser:
-                    keyhive = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, RegistryView.Default);
-                    break;
-                case RegistryHive.LocalMachine:
-                    keyhive = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Default);
-                    break;
-                default:
-                    Assert.Fail("Wrong RegistryHive entered.");
-                    return false;
-            }
-
             // Act
             return Registry.CheckKeyExistance(hive, SUBKEY_SOFTWARE);
         }
@@ -217,6 +202,34 @@ namespace AcHelper.Extra.Tests
 
             // Act
             Registry.DeleteSubKey(hive, subkeyToDelete, true);
+        }
+
+        [TestCase("SOFTWARE", "NedGraphics")]
+        [TestCase("ABCD", "WXYZ", "bladibladibla")]
+        [TestCase("SOFTWARE", "NedGraphics", "License")]
+        public void CreateRegistryKeyString(params string[] subkeys)
+        {
+            // Arrange
+            string expected = string.Empty;
+            for (int i = 0; i < subkeys.Length; i++)
+            {
+                expected += $"{subkeys[i]}\\";
+            }
+            expected = expected.TrimEnd('\\');
+
+            // Act
+            string actual = Registry.CreateRegistryKeyString(subkeys);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CreateRegistryKeyString_NoSubKeysGiven()
+        {
+            // Act
+            string regkey = Registry.CreateRegistryKeyString();
         }
     }
 }
